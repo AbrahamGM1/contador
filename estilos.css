@@ -1,0 +1,37 @@
+body {
+    background-color: #23a89f2c;
+}
+
+
+.marco {
+    background-color: rgb(155, 212, 212);
+    color: rgb(4, 56, 102);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 0 auto;
+    text-align: center;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    border-radius: 20px;
+}
+
+.marco2{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0 auto;
+    text-align: center;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    border-radius: 20px;
+}
+
+#botonPicame{
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    z-index: 99999;
+    font-size: 24px;
+}
+
