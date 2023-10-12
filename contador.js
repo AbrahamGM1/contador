@@ -1,9 +1,10 @@
 let tiempoRef = Date.now();
-let inicio = true;
+let inicio = false;
 let acumulado = 0;
 
 // Intenta cargar los valores del Local Storage al inicio
 const almacenado = localStorage.getItem('contador');
+
 if (almacenado) {
   const { inicioGuardado, acumuladoGuardado, tiempoRefGuardado } = JSON.parse(almacenado);
   inicio = inicioGuardado;
@@ -13,29 +14,22 @@ if (almacenado) {
 
 function guardarEstado() {
   // Guarda el estado en el Local Storage
-  localStorage.setItem('contador', JSON.stringify({ inicioGuardado: inicio, acumuladoGuardado: acumulado, tiempoRefGuardado: tiempoRef }));
+  localStorage.setItem('contador', JSON.stringify({ inicioGuardado: inicio, acumuladoGuardado: acumulado, tiempoRefGuardado: tiempoRef, activo:inicio}));
 }
 
-function iniciar() {
-  inicio = true;
-  tiempoRef = Date.now(); // Actualizar la referencia de tiempo
-  guardarEstado();
-}
-
-function detener() {
-  inicio = false;
-  guardarEstado();
-}  
-
+//Función que se ejecuta 60 veces por segundo que se encarga de actualizar constantemente el contador de la grabación
 setInterval(() => {
   let tiempo = document.getElementById("tiempo");
+
   if (inicio) {
     acumulado += Date.now() - tiempoRef;
   }
   tiempoRef = Date.now();
   tiempo.innerHTML = formatearMS(acumulado);
+  guardarEstado()
 }, 1000 / 60);
 
+//Pa poner bonita la presentación del texto del tiempo
 function formatearMS(tiempo_ms) {
   let MS = tiempo_ms % 1000;
   let St = Math.floor(tiempo_ms / 1000);
@@ -49,3 +43,24 @@ function formatearMS(tiempo_ms) {
 
   return H.ceros(2) + ":" + M.ceros(2) + ":" + S.ceros(2) + "." + MS.ceros(3);
 }
+
+// Recupera el boton del propio popup
+document.addEventListener("DOMContentLoaded", function() {
+  var boton = document.getElementById('grabar');
+
+  //Cambia entre verdadero o falso segun la situcación en la que se encuentre la variable de inicio
+  boton.addEventListener("click", function() {
+      //Si se está "grabando" y se pulsa el botón, se detiene la "grabación" y se pone en 0 todo
+      if (inicio == true) {
+          inicio = false;
+          localStorage.setItem('contador', JSON.stringify({ inicioGuardado: 0, acumuladoGuardado: 0, tiempoRefGuardado: 0, activo: inicio }));
+          acumulado = 0;
+          boton.innerHTML = "Grabar sesión";
+      } else {
+          //Si esta detenido, pues "inicia la grabación"
+          inicio = true;
+          boton.innerHTML = "Detener grabación";
+      }
+  });
+});
+

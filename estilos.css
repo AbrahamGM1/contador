@@ -16,7 +16,7 @@ body {
     border-radius: 20px;
 }
 
-.marco2{
+.estatus{
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     font-size: 24px;
     font-weight: bold;
@@ -25,6 +25,33 @@ body {
     padding-bottom: 10px;
     padding-top: 10px;
     border-radius: 20px;
+}
+
+.grabacion{
+    background-color: rgb(155, 212, 212);;
+    border-radius: 24px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 10px;
+}
+
+.boton{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 16px;
+    border-radius: 24px;
+    padding-bottom: 6px;
+    padding-top: 6px;
+    padding-left: 12px;
+    padding-right: 12px;
+    border-color: rgb(76, 189, 255);
+    background-color:rgb(127, 255, 255);
+    border-width: 4px;
+}
+
+.boton:hover{
+    background-color: #00832D;
+    border-color: #00772a;
+    color: aliceblue;
 }
 
 #botonPicame{
