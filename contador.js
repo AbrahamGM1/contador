@@ -29,7 +29,7 @@ setInterval(() => {
   guardarEstado()
 }, 1000 / 60);
 
-//Pa poner bonita la presentación del texto del tiempo
+//Esto nomás es pa poner bonita la presentación del texto del tiempo
 function formatearMS(tiempo_ms) {
   let MS = tiempo_ms % 1000;
   let St = Math.floor(tiempo_ms / 1000);
@@ -44,9 +44,17 @@ function formatearMS(tiempo_ms) {
   return H.ceros(2) + ":" + M.ceros(2) + ":" + S.ceros(2) + "." + MS.ceros(3);
 }
 
-// Recupera el boton del propio popup
+//////////////////////////////////////////Modificaciones con DOM
+var etiquetas = []
+
+/**
+ * La siguiente función se encarga de utilizar el DOM para obtener todos los elementos
+ * html del popup que sean necesarios el añadirles lógica para el funcionamiento del plugin
+ */
 document.addEventListener("DOMContentLoaded", function() {
   var boton = document.getElementById('grabar');
+  var botonOk = document.getElementById('agregar')
+  var txtEtiqueta = document.getElementById('texto')
 
   //Cambia entre verdadero o falso segun la situcación en la que se encuentre la variable de inicio
   boton.addEventListener("click", function() {
@@ -62,5 +70,32 @@ document.addEventListener("DOMContentLoaded", function() {
           boton.innerHTML = "Detener grabación";
       }
   });
+
+  /**
+   * La siguiente funcion se encarga de obtener lo que esté escrito dentro del 
+   * campo de texto para despues irlo desplegando en una lista, a su vez que va
+   * guardando cada etiqueta dentro del localstorage. Por ahora nomás hará agregar,
+   * mas adelante se debera de poder modificar o eliminar.
+   */
+  botonOk.addEventListener("click", function() {
+    let nuevaEtiqueta = txtEtiqueta.value 
+    //Si no hay nada ps no hace nada
+    if(nuevaEtiqueta==""){
+
+    } 
+    //Si hay algo escrito, se guarda dentro del local storage y lo despliega debajo
+    else if (nuevaEtiqueta !="") {
+      let etiqueta = document.createElement("p")
+      let cadenacompleta = txtEtiqueta.value + ":" + formatearMS(acumulado)
+      etiqueta.innerHTML = cadenacompleta
+      txtEtiqueta.value = ""
+      document.body.appendChild(etiqueta)
+    }
+
+  });
+
+
+
 });
+
 
