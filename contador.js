@@ -1,10 +1,15 @@
 let tiempoRef = Date.now();
 let inicio = false;
 let acumulado = 0;
+var arregloEtiquetas = []
+var primeraConsulta = true
 
-// Intenta cargar los valores del Local Storage al inicio
+
+// Intenta cargar los valores del Local Storage que se usarán para el correcto funcionamiento de la extensión
 const almacenado = localStorage.getItem('contador');
+const arregloAlmacenado = JSON.parse(localStorage.getItem('arregloEtiquetas'));
 
+//Los siguientes 2 ifs son necesarios para recuperar los valores del local storage y poder trabajar con ellos
 if (almacenado) {
   const { inicioGuardado, acumuladoGuardado, tiempoRefGuardado } = JSON.parse(almacenado);
   inicio = inicioGuardado;
@@ -12,21 +17,29 @@ if (almacenado) {
   tiempoRef = tiempoRefGuardado;
 }
 
+if(arregloAlmacenado){
+  arregloEtiquetas = arregloAlmacenado
+} 
+
+
+// Guarda el estado del contador en el Local Storage
 function guardarEstado() {
-  // Guarda el estado en el Local Storage
   localStorage.setItem('contador', JSON.stringify({ inicioGuardado: inicio, acumuladoGuardado: acumulado, tiempoRefGuardado: tiempoRef, activo:inicio}));
 }
 
 //Función que se ejecuta 60 veces por segundo que se encarga de actualizar constantemente el contador de la grabación
 setInterval(() => {
+
   let tiempo = document.getElementById("tiempo");
 
   if (inicio) {
     acumulado += Date.now() - tiempoRef;
   }
+
   tiempoRef = Date.now();
   tiempo.innerHTML = formatearMS(acumulado);
   guardarEstado()
+
 }, 1000 / 60);
 
 //Esto nomás es pa poner bonita la presentación del texto del tiempo
@@ -45,7 +58,6 @@ function formatearMS(tiempo_ms) {
 }
 
 //////////////////////////////////////////Modificaciones con DOM
-var etiquetas = []
 
 /**
  * La siguiente función se encarga de utilizar el DOM para obtener todos los elementos
@@ -55,6 +67,19 @@ document.addEventListener("DOMContentLoaded", function() {
   var boton = document.getElementById('grabar');
   var botonOk = document.getElementById('agregar')
   var txtEtiqueta = document.getElementById('texto')
+
+  //Carga por primera vez toda la lista de elementos
+  
+  let arregloFinal = JSON.parse(localStorage.getItem('arregloEtiquetas'))
+  
+  if(arregloFinal){
+  arregloFinal.forEach(element => {
+    let parrafo = document.createElement('p')
+    parrafo.className = "parrafo"
+    parrafo.innerHTML = element
+    document.body.appendChild(parrafo)
+  });
+  }
 
   //Cambia entre verdadero o falso segun la situcación en la que se encuentre la variable de inicio
   boton.addEventListener("click", function() {
@@ -85,15 +110,36 @@ document.addEventListener("DOMContentLoaded", function() {
     } 
     //Si hay algo escrito, se guarda dentro del local storage y lo despliega debajo
     else if (nuevaEtiqueta !="") {
-      let etiqueta = document.createElement("p")
       let cadenacompleta = txtEtiqueta.value + ":" + formatearMS(acumulado)
-      etiqueta.innerHTML = cadenacompleta
-      txtEtiqueta.value = ""
-      document.body.appendChild(etiqueta)
+      arregloEtiquetas.push(cadenacompleta)
+
+      ///Mete dentro del arreglo el valor de la cadena
+      //Mete el arreglo de puras strings al localstorage
+      //Itera en un foreach todas las strings del arreglo
+      //y muestralas en forma de lista
+      localStorage.setItem('arregloEtiquetas',JSON.stringify(arregloEtiquetas))
+
+      let arregloFinal = JSON.parse(localStorage.getItem('arregloEtiquetas'))
+
+      if (primeraConsulta) {
+        const parrafos = document.querySelectorAll("p")
+        parrafos.forEach(function(parrafo){
+          parrafo.remove();
+        });
+      } 
+
+
+      arregloFinal.forEach(element => {
+        let parrafo = document.createElement('p')
+        parrafo.className = "parrafo"
+        parrafo.innerHTML = element
+        document.body.appendChild(parrafo)
+      });
+      
+
     }
 
   });
-
 
 
 });
