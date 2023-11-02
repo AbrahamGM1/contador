@@ -1,3 +1,10 @@
+/**
+ * Equipo VideoTagger
+ * Código ingresado en Github desde el 07/10/2023
+ * 
+ * Archivo que contiene toda la lógica principal que se utiliza
+ * dentro del popup para que funcione tanto el contador como las etiquetas
+ */
 let tiempoRef = Date.now();
 let inicio = false;
 let acumulado = 0;
@@ -71,7 +78,7 @@ document.addEventListener("DOMContentLoaded", function() {
   //Carga por primera vez toda la lista de elementos
   
   let arregloFinal = JSON.parse(localStorage.getItem('arregloEtiquetas'))
-  
+
   if(arregloFinal){
   arregloFinal.forEach(element => {
     let parrafo = document.createElement('p')
