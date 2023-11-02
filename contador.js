@@ -12,6 +12,14 @@ var arregloEtiquetas = []
 var primeraConsulta = true
 
 
+window.onload = function() {
+  //document.querySelector('button').addEventListener('click', function() {
+    chrome.identity.getAuthToken({interactive: true}, function(token) {
+      chrome.runtime.sendMessage({ action: 'authToken',tokenGuardar: token });
+    });
+  //});
+};
+
 // Intenta cargar los valores del Local Storage que se usarán para el correcto funcionamiento de la extensión
 const almacenado = localStorage.getItem('contador');
 const arregloAlmacenado = JSON.parse(localStorage.getItem('arregloEtiquetas'));
@@ -150,5 +158,4 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 });
-
 
