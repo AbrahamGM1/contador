@@ -10,15 +10,15 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       nombreLlamada = message.nombreLlamada;
       fechaLlamada = message.fechaLlamada;
    
-      if (popupWindow && !popupWindow.closed) {
-         console.log("la ventana ya esta activa");
-      } else {
+      //if (popupWindow && !popupWindow.closed) {
+      //   console.log("la ventana ya esta activa");
+      //} else {
       
         popupWindow = chrome.windows.create({
             url: 'popup.html',
             type: 'popup'
         });
-      }
+      //}
   }
 
   if (message.action === "detenido"){
