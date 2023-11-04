@@ -4,6 +4,11 @@ let intervalo = "";
 let tokenGuardar = "";
 let popupWindow = null;
 
+chrome.identity.getAuthToken({ interactive: true }, function (token) {
+   tokenGuardar = token;
+   console.log(tokenGuardar)
+});
+
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === 'grabando') {
       console.log("el boton se presiono");

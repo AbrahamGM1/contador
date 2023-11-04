@@ -14,9 +14,9 @@ var primeraConsulta = true
 
 window.onload = function () {
   //document.querySelector('button').addEventListener('click', function() {
-  chrome.identity.getAuthToken({ interactive: true }, function (token) {
-    chrome.runtime.sendMessage({ action: 'authToken', tokenGuardar: token });
-  });
+  //chrome.identity.getAuthToken({ interactive: true }, function (token) {
+    //chrome.runtime.sendMessage({ action: 'authToken', tokenGuardar: token });
+  //});
 
   iniciarContador()
 
