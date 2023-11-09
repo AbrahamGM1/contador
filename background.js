@@ -1,12 +1,20 @@
+//datos de la llamada
 let nombreLlamada = "";
 let fechaLlamada = "";
-let intervalo = "";
+
+//intervalo para las consultas
+let intervaloConsultas = null;
+//intervalo del contador
+let intervaloContador = null;
+//token del usuario
 let tokenGuardar = "";
+//popup
 let popupWindow = null;
+//tiempo acumulado del contador
+let acumulado = 0;
 
 chrome.identity.getAuthToken({ interactive: true }, function (token) {
    tokenGuardar = token;
-   console.log(tokenGuardar)
 });
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -14,28 +22,61 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       console.log("el boton se presiono");
       nombreLlamada = message.nombreLlamada;
       fechaLlamada = message.fechaLlamada;
-   
-      if (popupWindow && !popupWindow.closed) {
-         console.log("la ventana ya esta activa");
+      console.log(popupWindow)
+
+      if (popupWindow) {
+        console.log("la ventana ya esta activa");
+        iniciarContador();
       } else {
-        popupWindow = chrome.windows.create({
-            url: 'popup.html',
-            type: 'popup'
-        });
+        crearVentana();
       }
   }
 
   if (message.action === "detenido"){
-      
-    intervalo = setInterval(consultarApi,10000);
-     
-  }
-
-  if(message.action === "authToken"){
-     tokenGuardar = message.tokenGuardar;
+    detenerContador();
+    //intervaloConsultas = setInterval(consultarApi,10000);
   }
 });
 
+function crearVentana(){
+  chrome.windows.create({
+    url: 'popup.html',
+    type: 'popup'
+  }, function(ventana) {  
+    iniciarContador();
+    popupWindow = ventana;
+    console.log(ventana);  
+    removedListen(popupWindow.id);
+  });  
+}
+
+function iniciarContador(){
+  acumulado = 0; 
+
+  intervaloContador = setInterval(() => {
+
+    acumulado += 1000 ;
+
+    chrome.runtime.sendMessage({ action: 'actualizarContador',tiempo: acumulado });
+  
+  }, 1000 / 60);
+}
+
+function detenerContador(){
+   clearInterval(intervaloContador);
+   acumulado = 0;
+   chrome.runtime.sendMessage({action: 'actualizarContador',tiempo: acumulado})
+}
+
+function removedListen(id){
+  chrome.windows.onRemoved.addListener(function(id) {
+    if (popupWindow && id === popupWindow.id) {
+        console.log('La ventana popup se ha cerrado.');
+        popupWindow = null;
+        detenerContador();
+    }
+  });
+}
 function consultarApi(){
   let init = {
     method: 'GET',
@@ -59,8 +100,9 @@ function consultarApi(){
                console.log("se encontro la llamada");
                console.log("id: ",element.id);
                console.log("name: ",element.name);
-               clearInterval(intervalo);
+               clearInterval(intervaloConsultas);
              }
           });
       });
 }
+

@@ -18,6 +18,7 @@ window.onload = function () {
   //chrome.identity.getAuthToken({ interactive: true }, function (token) {
     //chrome.runtime.sendMessage({ action: 'authToken', tokenGuardar: token });
   //});  
+  /*
   acumulado = 0; 
 
   intervalo = setInterval(() => {
@@ -29,30 +30,20 @@ window.onload = function () {
     tiempo.innerHTML = formatearMS(acumulado);
   
   }, 1000 / 60);
-
+  */
 };
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    if (message.action === 'grabando') {
-        acumulado = 0; 
 
-        intervalo = setInterval(() => {
-      
-          let tiempo = document.getElementById("tiempo");
-      
-          acumulado += 1000 ;
-      
-          tiempo.innerHTML = formatearMS(acumulado);
-        
-        }, 1000 / 60);
-    }
-});
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    if (message.action === 'detenido') {
-        clearInterval(intervalo);
-        acumulado = 0;
-    }
+  if (message.action === 'actualizarContador') {
+
+      if(message.tiempo !== null){
+        let tiempo = document.getElementById("tiempo");
+      
+        tiempo.innerHTML = formatearMS(message.tiempo);
+      }
+  }
 });
 
 
