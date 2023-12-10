@@ -4,21 +4,25 @@ let intervalo = "";
 let tokenGuardar = "";
 let popupWindow = null;
 
+chrome.identity.getAuthToken({ interactive: true }, function (token) {
+   tokenGuardar = token;
+   console.log(tokenGuardar)
+});
+
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === 'grabando') {
       console.log("el boton se presiono");
       nombreLlamada = message.nombreLlamada;
       fechaLlamada = message.fechaLlamada;
    
-      //if (popupWindow && !popupWindow.closed) {
-      //   console.log("la ventana ya esta activa");
-      //} else {
-      
+      if (popupWindow && !popupWindow.closed) {
+         console.log("la ventana ya esta activa");
+      } else {
         popupWindow = chrome.windows.create({
             url: 'popup.html',
             type: 'popup'
         });
-      //}
+      }
   }
 
   if (message.action === "detenido"){
