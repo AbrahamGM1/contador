@@ -12,6 +12,9 @@ let tokenGuardar = "";
 let popupWindow = null;
 //tiempo acumulado del contador
 let acumulado = 0;
+//a
+let videos = [];
+let videosAntes;
 
 chrome.identity.getAuthToken({ interactive: true }, function (token) {
    tokenGuardar = token;
@@ -20,6 +23,9 @@ chrome.identity.getAuthToken({ interactive: true }, function (token) {
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === 'grabando') {
       console.log("el boton se presiono");
+      //consulta los videos que se encuentren antes de la grabacion antes
+      //guarda la lista de los videos
+      consultarNumeroArchivos(videos,"",message.action);
       nombreLlamada = message.nombreLlamada;
       fechaLlamada = message.fechaLlamada;
       console.log(popupWindow)
@@ -34,7 +40,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
   if (message.action === "detenido"){
     detenerContador();
-    intervaloConsultas = setInterval(consultarApi,10000);
+    //¡
+    videosAntes = videos;
+    videos = [];
+    consultarNumeroArchivos("",message.action)
+    //intervaloConsultas = setInterval(consultarApi,10000);
   }
 });
 
@@ -78,6 +88,7 @@ function removedListen(id){
   });
 }
 
+/** 
 function consultarApi(){
   let init = {
     method: 'GET',
@@ -104,6 +115,108 @@ function consultarApi(){
                clearInterval(intervaloConsultas);
              }
           });
-      });
+      });     
+}
+
+
+*/
+
+
+function consultarNumeroArchivos(nextToken,estado){
+ 
+  let init;
+
+  if(nextToken === ""){
+    init = {
+      method: 'GET',
+      async: true,
+      headers: {
+        Authorization: 'Bearer ' + tokenGuardar,
+        'Content-Type': 'application/json'
+      },
+      params: {
+         q: "mimeType contains 'video/'"
+      },
+      'contentType': 'json'
+    };
+
+    const url = new URL('https://www.googleapis.com/drive/v3/files');
+    url.searchParams.append('q', "mimeType contains 'video/'");
+  
+    init.url = url;
+  }else{
+    init = {
+      method: 'GET',
+      async: true,
+      headers: {
+        Authorization: 'Bearer ' + tokenGuardar,
+        'Content-Type': 'application/json',
+      },
+      params: {
+         q: "mimeType contains 'video/'",
+         pageToken: nextToken
+      },
+      'contentType': 'json'
+    };
+
+    const url = new URL('https://www.googleapis.com/drive/v3/files');
+    url.searchParams.append('q', "mimeType contains 'video/'");
+    url.searchParams.append('pageToken', nextToken);
+  
+    init.url = url;
+
+  }
+
+  fetch(
+      init.url,
+      init)
+      .then((response) => response.json())
+      .then(function(data) {
+
+        console.log(data);
+
+        const arreglo = data.files;
+
+        
+
+        arreglo.forEach(element => {
+           videos.push(element);
+        });
+
+        console.log("numero de videos: ",videos.length)
+
+        if(data.nextPageToken){
+            console.log("faltan videos por agregar al conteo")
+             
+            consultarNumeroArchivos(data.nextPageToken,"")
+
+        }else{
+          console.log("videos totales: ");
+          console.log(videos.length);
+
+          if(estado === "detenido"){
+            comprobarNumeroVideos();
+          }
+        }
+
+  }); 
+}
+
+function comprobarNumeroVideos(){
+  if(videosAntes.length === videos.length){
+    console.log("cantidad sigue siendo la misma");
+    videos = [];
+    setTimeout(function() {
+      consultarNumeroArchivos("", "detenido");
+    }, 10 * 60 * 1000);
+  }else{
+    console.log("se ha encontrado una diferencia");
+
+    console.log(videos[0]);
+
+    console.log("el id del video es: ",videos[0].id);
+
+
+  }
 }
 
