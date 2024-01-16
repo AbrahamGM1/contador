@@ -16,8 +16,9 @@ let acumulado = 0;
 let videos = [];
 let videosAntes;
 
-chrome.identity.getAuthToken({ interactive: true }, function (token) {
+chrome.identity.getAuthToken({ interactive: true, scopes: ['https://www.googleapis.com/auth/drive']  }, function (token) {
    tokenGuardar = token;
+   console.log(token);
 });
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -25,7 +26,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       console.log("el boton se presiono");
       //consulta los videos que se encuentren antes de la grabacion antes
       //guarda la lista de los videos
-      consultarNumeroArchivos(videos,"",message.action);
+      consultarNumeroArchivos("",message.action);
       nombreLlamada = message.nombreLlamada;
       fechaLlamada = message.fechaLlamada;
       console.log(popupWindow)
@@ -125,7 +126,8 @@ function consultarApi(){
 function consultarNumeroArchivos(nextToken,estado){
  
   let init;
-
+   
+  //configura la consulta dependiendo si regresa el resultado paginado o uno completo
   if(nextToken === ""){
     init = {
       method: 'GET',
@@ -177,8 +179,6 @@ function consultarNumeroArchivos(nextToken,estado){
 
         const arreglo = data.files;
 
-        
-
         arreglo.forEach(element => {
            videos.push(element);
         });
@@ -188,7 +188,7 @@ function consultarNumeroArchivos(nextToken,estado){
         if(data.nextPageToken){
             console.log("faltan videos por agregar al conteo")
              
-            consultarNumeroArchivos(data.nextPageToken,"")
+            consultarNumeroArchivos(data.nextPageToken,estado)
 
         }else{
           console.log("videos totales: ");
@@ -216,7 +216,34 @@ function comprobarNumeroVideos(){
 
     console.log("el id del video es: ",videos[0].id);
 
-
+    cambiarPermisos(videos[0].id);
   }
+}
+
+//cambia los permisos del video a que todos los puedan visualizar
+function cambiarPermisos(id){
+   if(id){
+    let init = {
+      method: 'POST',
+      async: true,
+      body: JSON.stringify({
+        "role": "writer",
+        "type": "anyone"
+      })
+      ,
+      headers: {
+        Authorization: 'Bearer ' + tokenGuardar,
+        'Content-Type': 'application/json'
+      },
+      'contentType': 'json'
+    };
+    fetch(
+      `https://www.googleapis.com/drive/v3/files/${id}/permissions`,
+        init)
+      .then((response) => response.json())
+      .then(function(data) {
+          console.log(data);
+      });
+   }
 }
 
