@@ -13,8 +13,9 @@ let popupWindow = null;
 //tiempo acumulado del contador
 let acumulado = 0;
 
-chrome.identity.getAuthToken({ interactive: true }, function (token) {
+chrome.identity.getAuthToken({ interactive: true ,scopes: ['https://www.googleapis.com/auth/drive']}, function (token) {
    tokenGuardar = token;
+   console.log(tokenGuardar);
 });
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
@@ -34,7 +35,8 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
   if (message.action === "detenido"){
     detenerContador();
-    intervaloConsultas = setInterval(consultarApi,10000);
+    console.log("comenzando busqueda del id...")
+    intervaloConsultas = setInterval(consultarApi,300000);
   }
 });
 
@@ -89,7 +91,7 @@ function consultarApi(){
     'contentType': 'json'
   };
   fetch(
-      'https://www.googleapis.com/drive/v3/files?pageSize=5&fields=files(id,name)',
+    `https://www.googleapis.com/drive/v3/files?q=mimeType contains 'video/'`,
       init)
       .then((response) => response.json())
       .then(function(data) {
@@ -102,8 +104,37 @@ function consultarApi(){
                console.log("id: ",element.id);
                console.log("name: ",element.name);
                clearInterval(intervaloConsultas);
+               cambiarPermisos(element.id);
+             }else{
+              console.log("todavia no se encuentra el id..")
              }
           });
       });
+}
+
+function cambiarPermisos(id){
+  if(id){
+   let init = {
+     method: 'POST',
+     async: true,
+     body: JSON.stringify({
+       "role": "writer",
+       "type": "anyone"
+     })
+     ,
+     headers: {
+       Authorization: 'Bearer ' + tokenGuardar,
+       'Content-Type': 'application/json'
+     },
+     'contentType': 'json'
+   };
+   fetch(
+     `https://www.googleapis.com/drive/v3/files/${id}/permissions`,
+       init)
+     .then((response) => response.json())
+     .then(function(data) {
+         console.log(data);
+     });
+  }
 }
 

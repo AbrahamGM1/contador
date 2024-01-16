@@ -6,7 +6,7 @@
  * dentro del popup para que funcione tanto el contador como las etiquetas
  */
 let tiempoRef = Date.now();
-let inicio = false;
+let inicio = true;
 let acumulado = 0;
 var arregloEtiquetas = []
 var primeraConsulta = true
@@ -33,6 +33,17 @@ class Queue{
 
 const queue = new Queue();
 
+
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.action === 'actualizarContador') {
+
+      if(message.tiempo !== null){
+        let tiempo = document.getElementById("tiempo");
+
+        tiempo.innerHTML = formatearMS(message.tiempo);
+      }
+  }
+});
 
 window.onload = function () {
   //document.querySelector('button').addEventListener('click', function() {
@@ -66,7 +77,8 @@ function guardarEstado() {
 }
 
 //Función que se ejecuta 60 veces por segundo que se encarga de actualizar constantemente el contador de la grabación
-setInterval(() => {
+/** 
+ * setInterval(() => {
 
   let tiempo = document.getElementById("tiempo");
 
@@ -79,6 +91,8 @@ setInterval(() => {
   guardarEstado()
 
 }, 1000 / 60);
+*/
+
 
 //Esto nomás es pa poner bonita la presentación del texto del tiempo
 function formatearMS(tiempo_ms) {
