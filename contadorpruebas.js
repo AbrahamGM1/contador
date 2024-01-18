@@ -12,6 +12,7 @@ var arregloEtiquetas = []
 var primeraConsulta = true
 
 
+
 //Clase de las colas para procesar las etiquetas
 class Queue {
 
@@ -172,7 +173,10 @@ function guardarEtiqueta(txtEtiqueta) {
   if (inicio === true) {
     //Si ya se está grabando, deja poner etiquetas
 
-    let cadenacompleta = txtEtiqueta + ":" + formatearMS(acumulado)
+    let tiempo = document.getElementById("tiempo");
+    console.log(tiempo.innerText)
+    let cadenacompleta = txtEtiqueta + ":" + tiempo.innerText
+
     arregloEtiquetas.push(cadenacompleta)
 
     ///Mete dentro del arreglo el valor de la cadena

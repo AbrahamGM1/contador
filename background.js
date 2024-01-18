@@ -1,7 +1,7 @@
+importScripts("backgroundColas.js");
 //datos de la llamada
 let nombreLlamada = "";
 let fechaLlamada = "";
-
 //intervalo para las consultas
 let intervaloConsultas = null;
 //intervalo del contador
@@ -12,7 +12,37 @@ let tokenGuardar = "";
 let popupWindow = null;
 //tiempo acumulado del contador
 let acumulado = 0;
+//arreglo que sera enviado a las colas una vez que se haya encontrado el id
 
+/** 
+var dataToSave = {
+  arregloEtiquetas: ['tag1', 'tag2', 'tag3'],
+  someOtherData: 'value'
+};
+
+chrome.storage.local.set(dataToSave, function() {
+  console.log('Data saved successfully');
+});
+*/
+/*
+chrome.storage.local.get(['arregloEtiquetas', 'someOtherData'], function(result) {
+  var arregloEtiquetas = result.arregloEtiquetas || [];
+  var someOtherData = result.someOtherData;
+
+  console.log('Retrieved arregloEtiquetas:', arregloEtiquetas);
+  console.log('Retrieved someOtherData:', someOtherData);
+});
+*/
+/*
+chrome.storage.local.get('arregloEtiquetas', function(result) {
+  console.log(result)
+  if (!result.hasOwnProperty('arregloEtiquetas')) {
+    chrome.storage.local.set({ 'arregloEtiquetas': JSON.stringify([]) }, function() {
+      console.log('Array set to empty in chrome.storage.local');
+    });
+  }
+});
+*/
 chrome.identity.getAuthToken({ interactive: true ,scopes: ['https://www.googleapis.com/auth/drive']}, function (token) {
    tokenGuardar = token;
    console.log(tokenGuardar);
@@ -36,6 +66,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === "detenido"){
     detenerContador();
     console.log("comenzando busqueda del id...")
+
+    //arregloAlmacenado = JSON.parse(localStorage.getItem('arregloEtiquetas'));
+
+    //JSON.parse(localStorage.setItem('arregloEtiquetas', JSON.stringify([])));
+
     intervaloConsultas = setInterval(consultarApi,300000);
   }
 });
@@ -64,6 +99,7 @@ function iniciarContador(){
   }, 1000 / 60);
 }
 
+//error debido a que el intervalo sigue enviando actualizar aunque haya terminado
 function detenerContador(){
    clearInterval(intervaloContador);
    acumulado = 0;
@@ -134,7 +170,13 @@ function cambiarPermisos(id){
      .then((response) => response.json())
      .then(function(data) {
          console.log(data);
+         guardarEtiquetasCola(id);
      });
   }
 }
+
+function guardarEtiquetasCola(id){
+  chrome.runtime.sendMessage({ action: 'nuevaLlamada', idvideo: id });
+}
+
 

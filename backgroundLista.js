@@ -1,7 +1,8 @@
+importScripts("backgroundColas.js");
+
 //datos de la llamada
 let nombreLlamada = "";
 let fechaLlamada = "";
-
 //intervalo para las consultas
 let intervaloConsultas = null;
 //intervalo del contador
