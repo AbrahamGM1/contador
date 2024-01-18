@@ -1,4 +1,4 @@
-importScripts("backgroundColas.js");
+importScripts('backgroundColas.js');
 //datos de la llamada
 let nombreLlamada = "";
 let fechaLlamada = "";
@@ -22,6 +22,13 @@ var dataToSave = {
 chrome.storage.local.set(dataToSave, function() {
   console.log('Data saved successfully');
 });
+*/
+/*
+arregloPrueba = ["b","c"]
+setTimeout(() => {
+  // Después de esperar 5 segundos, coloca el código que deseas ejecutar.
+  guardarEtiquetasCola("id",arregloPrueba);
+}, 5000);
 */
 
 chrome.storage.local.get('arregloEtiquetas', function(result) {
@@ -65,10 +72,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
       console.log(result.arregloEtiquetas);
       //envia el arreglo a la consulta esperando el id para ser enviado a colas
+      
       intervaloConsultas = setInterval(function() {
         consultarApi(result.arregloEtiquetas);
       }, 300000);
-
+      
        //limpia el arreglo de etiquetas en caso de que se realice otra grabacion
        chrome.storage.local.set({ 'arregloEtiquetas': [] }, function() {
         console.log("array de etiquetas limpiado y mandado a colas")
@@ -178,7 +186,7 @@ function cambiarPermisos(id,arregloEtq){
 }
 
 function guardarEtiquetasCola(id,arregloEtq){
-  chrome.runtime.sendMessage({ action: 'nuevaLlamada', idvideo: id ,arreglo: arregloEtq});
+  guardarEnCola(id,arregloEtq);
 }
 
 

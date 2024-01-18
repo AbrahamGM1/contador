@@ -28,16 +28,25 @@ chrome.storage.local.get('arregloColas', function(result) {
       /*
       chrome.storage.local.set(result, function() {
         console.log('borrado');
-      });
+      });c
       */
     }
   });
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    if (message.action === 'nuevaLlamada') {
+function guardarEnCola(id,arregloEtq){
+  chrome.storage.local.get('arregloColas', function(result) {
+    
 
-        console.log("llego a archivo de colas los siguientes datos: ")
-        console.log(message.idvideo);
-        console.log(message.arreglo);
-    }
-});
+    arregloEtq.forEach(element => {
+      console.log(element, " agregado a colas")
+      result.arregloColas.push(element)
+    });
+    
+      
+    chrome.storage.local.set({ 'arregloColas': result.arregloColas}, function() {
+      console.log('Array actualizado');
+      console.log(result.arregloColas)
+    });
+    
+  });
+}
