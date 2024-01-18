@@ -42,6 +42,13 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         let tiempo = document.getElementById("tiempo");
 
         tiempo.innerHTML = formatearMS(message.tiempo);
+
+        if(message.tiempo === 0){
+          const parrafos = document.querySelectorAll("p")
+          parrafos.forEach(function (parrafo) {
+            parrafo.remove();
+          });
+        }
       }
   }
 });
@@ -58,14 +65,6 @@ window.onload = function () {
 // Intenta cargar los valores del Local Storage que se usarán para el correcto funcionamiento de la extensión
 const almacenado = localStorage.getItem('contador');
 
-//Si no existe el arreglo del localstorage, crea uno nuevo y lo manda a llamar
-var arregloAlmacenado;
-try {
-  arregloAlmacenado = JSON.parse(localStorage.getItem('arregloEtiquetas'));
-} catch (error) {
-  JSON.parse(localStorage.setItem('arregloEtiquetas', JSON.stringify([])));
-  arregloAlmacenado = JSON.parse(localStorage.getItem('arregloEtiquetas'));
-}
 
 //Los siguientes 2 ifs son necesarios para recuperar los valores del local storage y poder trabajar con ellos
 if (almacenado) {
@@ -75,10 +74,11 @@ if (almacenado) {
   tiempoRef = tiempoRefGuardado;
 }
 
+/*
 if (arregloAlmacenado) {
   arregloEtiquetas = arregloAlmacenado
 }
-
+*/
 
 // Guarda el estado del contador en el Local Storage
 function guardarEstado() {
@@ -129,16 +129,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
   //Carga por primera vez toda la lista de elementos
 
-  let arregloFinal = JSON.parse(localStorage.getItem('arregloEtiquetas'))
-
-  if (arregloFinal) {
-    arregloFinal.forEach(element => {
+  chrome.storage.local.get('arregloEtiquetas', function(result) {
+    if (!result.arregloEtiquetas) {
+      chrome.storage.local.set({ 'arregloEtiquetas': JSON.stringify([]) }, function() {
+        console.log('se creo un array para almacenar las etiquetas');
+      });
+    }else{
+      console.log("existia un array antes")
+      
+      result.arregloEtiquetas.forEach(element => {
       let parrafo = document.createElement('p')
       parrafo.className = "parrafo"
       parrafo.innerHTML = element
       document.body.appendChild(parrafo)
-    });
-  }
+      });
+    }
+  });
+
 
   //Cambia entre verdadero o falso segun la situcación en la que se encuentre la variable de inicio
   boton.addEventListener("click", function () {
@@ -172,7 +179,35 @@ document.addEventListener("DOMContentLoaded", function () {
 function guardarEtiqueta(txtEtiqueta) {
   if (inicio === true) {
     //Si ya se está grabando, deja poner etiquetas
+    chrome.storage.local.get('arregloEtiquetas', function(result) {
+      
 
+      let tiempo = document.getElementById("tiempo");
+      console.log(tiempo.innerText)
+      let cadenacompleta = txtEtiqueta + ":" + tiempo.innerText
+  
+      result.arregloEtiquetas.push(cadenacompleta)
+
+      const parrafos = document.querySelectorAll("p")
+      parrafos.forEach(function (parrafo) {
+        parrafo.remove();
+      });
+        
+      chrome.storage.local.set({ 'arregloEtiquetas': result.arregloEtiquetas }, function() {
+        console.log('Array actualizado');
+        
+        // Display the updated array on the webpage
+        result.arregloEtiquetas.forEach(element => {
+          let parrafo = document.createElement('p');
+          parrafo.className = "parrafo";
+          parrafo.innerHTML = element;
+          document.body.appendChild(parrafo);
+        });
+      });
+      
+    });
+
+    /*
     let tiempo = document.getElementById("tiempo");
     console.log(tiempo.innerText)
     let cadenacompleta = txtEtiqueta + ":" + tiempo.innerText
@@ -206,7 +241,9 @@ function guardarEtiqueta(txtEtiqueta) {
         alert(data);
       });
     }
+    */
   }
+  
 }
 
 function imprimirEtiquetas(arregloFinal) {

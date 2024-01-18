@@ -12,11 +12,10 @@ let tokenGuardar = "";
 let popupWindow = null;
 //tiempo acumulado del contador
 let acumulado = 0;
-//arreglo que sera enviado a las colas una vez que se haya encontrado el id
 
-/** 
+/*
 var dataToSave = {
-  arregloEtiquetas: ['tag1', 'tag2', 'tag3'],
+  arregloEtiquetas: ["1","2"],
   someOtherData: 'value'
 };
 
@@ -24,25 +23,19 @@ chrome.storage.local.set(dataToSave, function() {
   console.log('Data saved successfully');
 });
 */
-/*
-chrome.storage.local.get(['arregloEtiquetas', 'someOtherData'], function(result) {
-  var arregloEtiquetas = result.arregloEtiquetas || [];
-  var someOtherData = result.someOtherData;
 
-  console.log('Retrieved arregloEtiquetas:', arregloEtiquetas);
-  console.log('Retrieved someOtherData:', someOtherData);
-});
-*/
-/*
 chrome.storage.local.get('arregloEtiquetas', function(result) {
-  console.log(result)
-  if (!result.hasOwnProperty('arregloEtiquetas')) {
+  console.log(result.arregloEtiquetas);
+  if (!result.arregloEtiquetas) {
     chrome.storage.local.set({ 'arregloEtiquetas': JSON.stringify([]) }, function() {
-      console.log('Array set to empty in chrome.storage.local');
+      console.log('se creo un array para almacenar las etiquetas');
     });
+  }else{
+    console.log("existia un array antes")
   }
 });
-*/
+
+
 chrome.identity.getAuthToken({ interactive: true ,scopes: ['https://www.googleapis.com/auth/drive']}, function (token) {
    tokenGuardar = token;
    console.log(tokenGuardar);
@@ -67,11 +60,20 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     detenerContador();
     console.log("comenzando busqueda del id...")
 
-    //arregloAlmacenado = JSON.parse(localStorage.getItem('arregloEtiquetas'));
+    //obtiene el arreglo de etiquetas
+    chrome.storage.local.get('arregloEtiquetas', function(result) {
 
-    //JSON.parse(localStorage.setItem('arregloEtiquetas', JSON.stringify([])));
+      console.log(result.arregloEtiquetas);
+      //envia el arreglo a la consulta esperando el id para ser enviado a colas
+      intervaloConsultas = setInterval(function() {
+        consultarApi(result.arregloEtiquetas);
+      }, 300000);
 
-    intervaloConsultas = setInterval(consultarApi,300000);
+       //limpia el arreglo de etiquetas en caso de que se realice otra grabacion
+       chrome.storage.local.set({ 'arregloEtiquetas': [] }, function() {
+        console.log("array de etiquetas limpiado y mandado a colas")
+       });
+    });
   }
 });
 
@@ -116,7 +118,7 @@ function removedListen(id){
   });
 }
 
-function consultarApi(){
+function consultarApi(arregloEtq){
   let init = {
     method: 'GET',
     async: true,
@@ -140,7 +142,7 @@ function consultarApi(){
                console.log("id: ",element.id);
                console.log("name: ",element.name);
                clearInterval(intervaloConsultas);
-               cambiarPermisos(element.id);
+               cambiarPermisos(element.id,arregloEtq);
              }else{
               console.log("todavia no se encuentra el id..")
              }
@@ -148,7 +150,7 @@ function consultarApi(){
       });
 }
 
-function cambiarPermisos(id){
+function cambiarPermisos(id,arregloEtq){
   if(id){
    let init = {
      method: 'POST',
@@ -170,13 +172,13 @@ function cambiarPermisos(id){
      .then((response) => response.json())
      .then(function(data) {
          console.log(data);
-         guardarEtiquetasCola(id);
+         guardarEtiquetasCola(id,arregloEtq);
      });
   }
 }
 
-function guardarEtiquetasCola(id){
-  chrome.runtime.sendMessage({ action: 'nuevaLlamada', idvideo: id });
+function guardarEtiquetasCola(id,arregloEtq){
+  chrome.runtime.sendMessage({ action: 'nuevaLlamada', idvideo: id ,arreglo: arregloEtq});
 }
 
 
