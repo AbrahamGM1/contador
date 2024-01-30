@@ -14,8 +14,7 @@
         "identity",
         "tabs",
         "scripting"
-    ]
-    ,
+    ],
     "content_scripts":[
         {
          "matches": [

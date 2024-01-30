@@ -1,4 +1,6 @@
 importScripts('backgroundColas.js');
+
+colasWebService();
 //datos de la llamada
 let nombreLlamada = "";
 let fechaLlamada = "";
@@ -176,6 +178,38 @@ function cambiarPermisos(id,arregloEtq){
    };
    fetch(
      `https://www.googleapis.com/drive/v3/files/${id}/permissions`,
+       init)
+     .then((response) => response.json())
+     .then(function(data) {
+         console.log(data);
+         guardarVideo(id,arregloEtq);
+     });
+  }
+}
+
+function guardarVideo(id,arregloEtq){
+  if(id){
+   let init = {
+     method: 'POST',
+     async: true,
+     body: JSON.stringify({
+      "artifactName": nombreLlamada,
+      "artifactLocation": `https://drive.google.com/file/d/${id}`,
+      "artifactFormat": "mp4",
+      "artifactTags": [],
+      "isMadeBy": "",
+      "hasUsedIn": "",
+      "hasTaggedBy": "",
+      "isUsedBy": ""
+     })
+     ,
+     headers: {
+       'Content-Type': 'application/json'
+     },
+     'contentType': 'json'
+   };
+   fetch(
+     `https://apimodelador.borrego-research.com/webserviceontology/videotagger/videos/save`,
        init)
      .then((response) => response.json())
      .then(function(data) {

@@ -184,7 +184,7 @@ function guardarEtiqueta(txtEtiqueta) {
 
       let tiempo = document.getElementById("tiempo");
       console.log(tiempo.innerText)
-      let cadenacompleta = txtEtiqueta + ":" + tiempo.innerText
+      let cadenacompleta = txtEtiqueta + "," + tiempo.innerText
   
       result.arregloEtiquetas.push(cadenacompleta)
 
