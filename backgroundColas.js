@@ -4,6 +4,7 @@
 console.log("hola mundo")
 
 //codigo comentado siguiente es para limpiar el array de colas para pruebas
+
 /*
  var dataToSave = {
     arregloColas: [],
@@ -13,7 +14,7 @@ console.log("hola mundo")
   chrome.storage.local.set(dataToSave, function() {
     console.log('Data saved successfully');
   });
- */
+*/
 
 
 chrome.storage.local.get('arregloColas', function(result) {
@@ -101,9 +102,9 @@ function guardarEtiquetaWeb(etiqueta){
      }
    };
    fetch(
-     "https://apimodelador.borrego-research.com/webserviceontology/videotagger/videos/tag",
+     "https://apivideotagger.borrego-research.com/webserviceontology/videotagger/videos/tag",
        init)
-     .then((response) => response.json())
+     .then((response) => console.log(response))
      .then(function(data) {
          console.log(data);
          chrome.storage.local.get('arregloColas', function(result) {

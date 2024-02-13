@@ -25,11 +25,15 @@ chrome.storage.local.set(dataToSave, function() {
   console.log('Data saved successfully');
 });
 */
+
+//linea de codigo para probar el guardado
+//el video no se mostrar en la consulta de ver todos los videos de la ontologia
+//si no tiene por lo menos una etiqueta
+
 /*
-arregloPrueba = ["b","c"]
+arregloPrueba = ["primertema,00:00:01","segundotema,00:00:02"]
 setTimeout(() => {
-  // Después de esperar 5 segundos, coloca el código que deseas ejecutar.
-  guardarEtiquetasCola("id",arregloPrueba);
+  guardarEtiquetasCola("1O-pbldRRE475FpPVdEz135JgsS3scLw5",arregloPrueba)
 }, 5000);
 */
 
@@ -209,7 +213,7 @@ function guardarVideo(id,arregloEtq){
      'contentType': 'json'
    };
    fetch(
-     `https://apimodelador.borrego-research.com/webserviceontology/videotagger/videos/save`,
+     `https://apivideotagger.borrego-research.com/webserviceontology/videotagger/videos/save`,
        init)
      .then((response) => response.json())
      .then(function(data) {
