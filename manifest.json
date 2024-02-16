@@ -5,8 +5,7 @@
     "description": "Contador de tiempo",
     "action":{
         "default_icon":"Icono.png",
-        "default_title": "Contador",
-        "default_popup":"popup.html"
+        "default_title": "Contador"
     },
     "permissions":[
         "activeTab",
