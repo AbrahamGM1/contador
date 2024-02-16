@@ -1,7 +1,6 @@
 /**
  * este service worker se encargara de realizar las consultas relacionadas a las colas
  */
-console.log("hola mundo")
 
 //codigo comentado siguiente es para limpiar el array de colas para pruebas
 
@@ -18,7 +17,7 @@ console.log("hola mundo")
 
 
 chrome.storage.local.get('arregloColas', function(result) {
-    console.log(result.arregloColas)
+    console.log("arreglo colas: ",result.arregloColas)
     if (!result.arregloColas) {
       chrome.storage.local.set({ 'arregloColas': JSON.stringify([]) }, function() {
         console.log('se creo un array para almacenar las etiquetas para uso de las colas');
@@ -49,7 +48,7 @@ function guardarEnCola(id,arregloEtq){
       console.log(result.arregloColas)
 
       //comienza el funcionamiento de las colas tras actualizar
-      if(result.arregloColas.length === 0){
+      if(result.arregloColas.length  === 0){
         console.log("no hay tags en la cola") 
       }else{
         colasWebService();

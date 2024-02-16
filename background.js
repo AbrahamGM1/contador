@@ -1,4 +1,5 @@
 importScripts('backgroundColas.js');
+importScripts('backgroundBusqueda.js');
 
 colasWebService();
 //datos de la llamada
@@ -31,14 +32,14 @@ chrome.storage.local.set(dataToSave, function() {
 //si no tiene por lo menos una etiqueta
 
 /*
-arregloPrueba = ["primertema,00:00:01","segundotema,00:00:02"]
+arregloPrueba = ["primerprueba,00:00:01","segundoprueba,00:00:02"]
 setTimeout(() => {
-  guardarEtiquetasCola("1O-pbldRRE475FpPVdEz135JgsS3scLw5",arregloPrueba)
+  guardarEtiquetasCola("1xc-c82laIn2gKTUQZaKKdUWHK7mmAyKt",arregloPrueba)
 }, 5000);
 */
 
 chrome.storage.local.get('arregloEtiquetas', function(result) {
-  console.log(result.arregloEtiquetas);
+  console.log("arreglo etiquetas",result.arregloEtiquetas);
   if (!result.arregloEtiquetas) {
     chrome.storage.local.set({ 'arregloEtiquetas': JSON.stringify([]) }, function() {
       console.log('se creo un array para almacenar las etiquetas');
@@ -66,6 +67,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         iniciarContador();
       } else {
         crearVentana();
+        iniciarContador();
       }
   }
 
@@ -85,10 +87,11 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       
        //limpia el arreglo de etiquetas en caso de que se realice otra grabacion
        chrome.storage.local.set({ 'arregloEtiquetas': [] }, function() {
-        console.log("array de etiquetas limpiado y mandado a colas")
+        console.log("array de etiquetas limpiado y listo para mandar a colas")
        });
     });
   }
+  //1xc-c82laIn2gKTUQZaKKdUWHK7mmAyKt
 });
 
 function crearVentana(){
@@ -96,7 +99,6 @@ function crearVentana(){
     url: 'popup.html',
     type: 'popup'
   }, function(ventana) {  
-    iniciarContador();
     popupWindow = ventana;
     console.log(ventana);  
     removedListen(popupWindow.id);
@@ -109,7 +111,7 @@ function iniciarContador(){
   intervaloContador = setInterval(() => {
 
     acumulado += 1000 ;
-
+    
     chrome.runtime.sendMessage({ action: 'actualizarContador',tiempo: acumulado });
   
   }, 1000 / 60);
@@ -127,7 +129,10 @@ function removedListen(id){
     if (popupWindow && id === popupWindow.id) {
         console.log('La ventana popup se ha cerrado.');
         popupWindow = null;
-        detenerContador();
+
+        if(acumulado !== 0){
+          crearVentana();
+        }
     }
   });
 }

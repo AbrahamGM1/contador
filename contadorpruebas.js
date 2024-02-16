@@ -304,3 +304,5 @@ function procesarEtiqueta(tiempo, etiqueta) {
   });
 }
 
+
+
