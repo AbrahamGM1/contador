@@ -41,7 +41,7 @@ setTimeout(() => {
 chrome.storage.local.get('arregloEtiquetas', function(result) {
   console.log("arreglo etiquetas",result.arregloEtiquetas);
   if (!result.arregloEtiquetas) {
-    chrome.storage.local.set({ 'arregloEtiquetas': JSON.stringify([]) }, function() {
+    chrome.storage.local.set({ 'arregloEtiquetas': [] }, function() {
       console.log('se creo un array para almacenar las etiquetas');
     });
   }else{

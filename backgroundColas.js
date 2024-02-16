@@ -19,7 +19,7 @@
 chrome.storage.local.get('arregloColas', function(result) {
     console.log("arreglo colas: ",result.arregloColas)
     if (!result.arregloColas) {
-      chrome.storage.local.set({ 'arregloColas': JSON.stringify([]) }, function() {
+      chrome.storage.local.set({ 'arregloColas': [] }, function() {
         console.log('se creo un array para almacenar las etiquetas para uso de las colas');
       });
     }else{
