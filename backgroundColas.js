@@ -6,7 +6,7 @@
 
 /*
  var dataToSave = {
-    arregloColas: [],
+    arregloColas: ["pruebanuevaestructurapruebaespecial,00:17:27.000,10uTwj1Gp9Ib0cceReQXdddEiGafh-bk0"],
     someOtherData: 'value'
   };
   

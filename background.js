@@ -1,7 +1,9 @@
 importScripts('backgroundColas.js');
 importScripts('backgroundBusqueda.js');
 
+colasBusquedaVideo();
 colasWebService();
+
 //datos de la llamada
 let nombreLlamada = "";
 let fechaLlamada = "";
@@ -10,7 +12,7 @@ let intervaloConsultas = null;
 //intervalo del contador
 let intervaloContador = null;
 //token del usuario
-let tokenGuardar = "";
+//let tokenGuardar = "";
 //popup
 let popupWindow = null;
 //tiempo acumulado del contador
@@ -49,11 +51,12 @@ chrome.storage.local.get('arregloEtiquetas', function(result) {
   }
 });
 
-
+/*
 chrome.identity.getAuthToken({ interactive: true ,scopes: ['https://www.googleapis.com/auth/drive']}, function (token) {
    tokenGuardar = token;
    console.log(tokenGuardar);
 });
+*/
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === 'grabando') {
@@ -81,10 +84,14 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       console.log(result.arregloEtiquetas);
       //envia el arreglo a la consulta esperando el id para ser enviado a colas
       
+      guardarEnBusqueda(nombreLlamada,fechaLlamada,result.arregloEtiquetas);
+
+      /*
       intervaloConsultas = setInterval(function() {
         consultarApi(result.arregloEtiquetas);
       }, 300000);
-      
+      */
+
        //limpia el arreglo de etiquetas en caso de que se realice otra grabacion
        chrome.storage.local.set({ 'arregloEtiquetas': [] }, function() {
         console.log("array de etiquetas limpiado y listo para mandar a colas")
@@ -137,6 +144,8 @@ function removedListen(id){
   });
 }
 
+//metodo anterior
+/*
 function consultarApi(arregloEtq){
   let init = {
     method: 'GET',
@@ -231,5 +240,5 @@ function guardarVideo(id,arregloEtq){
 function guardarEtiquetasCola(id,arregloEtq){
   guardarEnCola(id,arregloEtq);
 }
-
+*/
 
