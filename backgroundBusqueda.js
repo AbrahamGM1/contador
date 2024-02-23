@@ -8,7 +8,7 @@ let tokenGuardar = "";
 
 chrome.identity.getAuthToken({ interactive: true ,scopes: ['https://www.googleapis.com/auth/drive']}, function (token) {
    tokenGuardar = token;
-   console.log(tokenGuardar);
+   console.log("se creo token de api")
 });
 
 //funcion para eliminar elementos del localstorage
@@ -18,14 +18,21 @@ chrome.storage.local.remove('arregloBusquedaVideo', function() {
   });
 */
 
+/*  
+chrome.storage.local.set({ 'arregloBusquedaVideo': [JSON.stringify({nombreLlamada: "ejemplo",fechaLlamada:"2002-11-02",etiquetas:["etiqueta","asdfas"]})] }, function() {
+  console.log('se creo un array para almacenar las etiquetas sin id encontrado');
+});
+*/
+
+
 chrome.storage.local.get('arregloBusquedaVideo', function(result) {
     console.log("arreglo busqueda: ",result.arregloBusquedaVideo);
     if (!result.arregloBusquedaVideo) {
       chrome.storage.local.set({ 'arregloBusquedaVideo': [] }, function() {
-        console.log('se creo un array para almacenar las etiquetas sin id encontrado');
+        console.log('se creo un array para almacenar videos por guardar');
       });
     }else{
-      console.log("existia un array de busqueda antes")
+
     }
 });
 
@@ -118,91 +125,24 @@ function consultarApi(primerVideo){
             }, 300000);
 
             }catch(infoLlamadaActualizado){
-              cambiarPermisos(infoLlamadaActualizado);    
+              console.log("length del arreglo, ",infoLlamadaActualizado.etiquetas.length);
+
+              guardarArregloVideo(infoLlamadaActualizado); 
+              guardarEnPermisos(infoLlamadaActualizado);   
             }
+        }).catch((error) => {
+            console.error("Ha fallado la consulta con el sig error");
+            console.error(error);
+
+            setTimeout(() => {
+              colasBusquedaVideo();
+           }, 10000);
+            
         });
   }
   
-  function cambiarPermisos(infoLlamadaActualizado){
-    if(infoLlamadaActualizado.id){
-     let init = {
-       method: 'POST',
-       async: true,
-       body: JSON.stringify({
-         "role": "writer",
-         "type": "anyone"
-       })
-       ,
-       headers: {
-         Authorization: 'Bearer ' + tokenGuardar,
-         'Content-Type': 'application/json'
-       },
-       'contentType': 'json'
-     };
-     fetch(
-       `https://www.googleapis.com/drive/v3/files/${infoLlamadaActualizado.id}/permissions`,
-         init)
-       .then((response) => response.json())
-       .then(function(data) {
-           console.log(data);
-           guardarVideo(infoLlamadaActualizado);
-       });
-    }
-  }
   
-  function guardarVideo(infoLlamadaActualizado){
-    if(infoLlamadaActualizado.id){
-     let init = {
-       method: 'POST',
-       async: true,
-       body: JSON.stringify({
-        "artifactName": infoLlamadaActualizado.nombreLlamada,
-        "artifactLocation": `https://drive.google.com/file/d/${infoLlamadaActualizado.id}`,
-        "artifactFormat": "mp4",
-        "artifactTags": [],
-        "isMadeBy": "",
-        "hasUsedIn": "",
-        "hasTaggedBy": "",
-        "isUsedBy": ""
-       })
-       ,
-       headers: {
-         'Content-Type': 'application/json'
-       },
-       'contentType': 'json'
-     };
-     fetch(
-       `https://apivideotagger.borrego-research.com/webserviceontology/videotagger/videos/save`,
-         init)
-       .then((response) => response.json())
-       .then(function(data) {
-           console.log(data);
-           guardarEnCola(infoLlamadaActualizado.id,infoLlamadaActualizado.etiquetas);
-           guardarSiguiente();
-       });
-    }
-  }
 
-  //borra el que se acaba de agregar de la cola y vuelve a lanzar la cola 
-  function guardarSiguiente(){
-    chrome.storage.local.get('arregloBusquedaVideo', function(result) {
-
-        result.arregloBusquedaVideo.shift();
-  
-        chrome.storage.local.set({ 'arregloBusquedaVideo': result.arregloBusquedaVideo}, function() {
-          console.log('Array busqueda actualizado');
-          console.log(result.arregloBusquedaVideo);
-    
-          //comienza el funcionamiento de las colas tras actualizar
-          if(result.arregloBusquedaVideo.length === 0){
-            console.log("no hay mas videos del cual buscar el id") 
-          }else{
-            colasBusquedaVideo();
-          }
-        });
-
-      });
-  }
 
 /*
 //funcion para eliminar elementos del localstorage

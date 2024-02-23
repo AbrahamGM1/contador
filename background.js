@@ -1,8 +1,12 @@
 importScripts('backgroundColas.js');
 importScripts('backgroundBusqueda.js');
+importScripts('backgroundPermisos.js');
+importScripts('backgroundGuardar.js');
 
 colasBusquedaVideo();
 colasWebService();
+colasPermisos();
+colasGuardarVideo();
 
 //datos de la llamada
 let nombreLlamada = "";
@@ -60,7 +64,13 @@ chrome.identity.getAuthToken({ interactive: true ,scopes: ['https://www.googleap
 
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === 'grabando') {
-      console.log("el boton se presiono");
+
+      /*
+      chrome.storage.local.set({ 'arregloEtiquetas': [] }, function() {
+        console.log('se limpio el array de etiquetas');
+      });
+      */
+
       nombreLlamada = message.nombreLlamada;
       fechaLlamada = message.fechaLlamada;
       console.log(popupWindow)
@@ -76,12 +86,12 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
   if (message.action === "detenido"){
     detenerContador();
-    console.log("comenzando busqueda del id...")
 
     //obtiene el arreglo de etiquetas
     chrome.storage.local.get('arregloEtiquetas', function(result) {
 
-      console.log(result.arregloEtiquetas);
+      console.log("imprimiendo en grabacion finalizada: ",result)
+
       //envia el arreglo a la consulta esperando el id para ser enviado a colas
       
       guardarEnBusqueda(nombreLlamada,fechaLlamada,result.arregloEtiquetas);

@@ -23,14 +23,7 @@ chrome.storage.local.get('arregloColas', function(result) {
         console.log('se creo un array para almacenar las etiquetas para uso de las colas');
       });
     }else{
-      console.log("existia un array de colas antes")
-      //delete result.arregloColas
 
-      /*
-      chrome.storage.local.set(result, function() {
-        console.log('borrado');
-      });c
-      */
     }
   });
 
@@ -57,6 +50,7 @@ function guardarEnCola(id,arregloEtq){
     
   });
 }
+
 
 //cola simulada
 async function colasWebService(){
@@ -124,6 +118,11 @@ function guardarEtiquetaWeb(etiqueta){
 
           
         });
+     }).catch((error) => {
+      console.error("Ha fallado la consulta de cambio de permisos con el sig error");
+      console.error(error);
+      console.error("Se reintentara el guardado dentro de 10 segundos")
+      colasWebService();
      });
   }
 }

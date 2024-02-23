@@ -123,19 +123,12 @@ function formatearMS(tiempo_ms) {
  * html del popup que sean necesarios el añadirles lógica para el funcionamiento del plugin
  */
 document.addEventListener("DOMContentLoaded", function () {
-  var boton = document.getElementById('grabar');
   var botonOk = document.getElementById('agregar')
   var txtEtiqueta = document.getElementById('texto')
 
   //Carga por primera vez toda la lista de elementos
 
   chrome.storage.local.get('arregloEtiquetas', function(result) {
-    if (!result.arregloEtiquetas) {
-      chrome.storage.local.set({ 'arregloEtiquetas': JSON.stringify([]) }, function() {
-        console.log('se creo un array para almacenar las etiquetas');
-      });
-    }else{
-      console.log("existia un array antes")
       
       result.arregloEtiquetas.forEach(element => {
       let parrafo = document.createElement('p')
@@ -143,15 +136,8 @@ document.addEventListener("DOMContentLoaded", function () {
       parrafo.innerHTML = element
       document.body.appendChild(parrafo)
       });
-    }
+
   });
-
-
-  //Cambia entre verdadero o falso segun la situcación en la que se encuentre la variable de inicio
-  boton.addEventListener("click", function () {
-    presionarGrabacion(boton)
-  });
-
 
   //Para guardar las etiquetas
   botonOk.addEventListener("click", function () {
@@ -177,7 +163,8 @@ document.addEventListener("DOMContentLoaded", function () {
  * mas adelante se debera de poder modificar o eliminar.
  */
 function guardarEtiqueta(txtEtiqueta) {
-  if (inicio === true) {
+  console.log("estoy siendo presionado")
+
     //Si ya se está grabando, deja poner etiquetas
     chrome.storage.local.get('arregloEtiquetas', function(result) {
       
@@ -242,7 +229,7 @@ function guardarEtiqueta(txtEtiqueta) {
       });
     }
     */
-  }
+
   
 }
 
