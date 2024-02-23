@@ -5,6 +5,11 @@
 //codigo comentado siguiente es para limpiar el array de colas para pruebas
 
 /*
+chrome.storage.local.remove('arregloColas', function() {
+  console.log('Se eliminó el arreglo de búsqueda de videos.');
+});
+*/
+/*
  var dataToSave = {
     arregloColas: ["pruebanuevaestructurapruebaespecial,00:17:27.000,10uTwj1Gp9Ib0cceReQXdddEiGafh-bk0"],
     someOtherData: 'value'

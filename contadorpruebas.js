@@ -163,28 +163,27 @@ document.addEventListener("DOMContentLoaded", function () {
  * mas adelante se debera de poder modificar o eliminar.
  */
 function guardarEtiqueta(txtEtiqueta) {
-  console.log("estoy siendo presionado")
 
     //Si ya se está grabando, deja poner etiquetas
-    chrome.storage.local.get('arregloEtiquetas', function(result) {
+    chrome.storage.local.get('llamadaActiva', function(result) {
       
 
       let tiempo = document.getElementById("tiempo");
       console.log(tiempo.innerText)
       let cadenacompleta = txtEtiqueta + "," + tiempo.innerText
   
-      result.arregloEtiquetas.push(cadenacompleta)
+      result.llamadaActiva.etiquetas.push(cadenacompleta)
 
       const parrafos = document.querySelectorAll("p")
       parrafos.forEach(function (parrafo) {
         parrafo.remove();
       });
         
-      chrome.storage.local.set({ 'arregloEtiquetas': result.arregloEtiquetas }, function() {
+      chrome.storage.local.set({ 'llamadaActiva': result.llamadaActiva }, function() {
         console.log('Array actualizado');
         
         // Display the updated array on the webpage
-        result.arregloEtiquetas.forEach(element => {
+        result.llamadaActiva.etiquetas.forEach(element => {
           let parrafo = document.createElement('p');
           parrafo.className = "parrafo";
           parrafo.innerHTML = element;

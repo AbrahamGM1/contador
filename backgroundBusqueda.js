@@ -4,12 +4,6 @@
  */
 
 
-let tokenGuardar = "";
-
-chrome.identity.getAuthToken({ interactive: true ,scopes: ['https://www.googleapis.com/auth/drive']}, function (token) {
-   tokenGuardar = token;
-   console.log("se creo token de api")
-});
 
 //funcion para eliminar elementos del localstorage
 /*
@@ -17,9 +11,14 @@ chrome.storage.local.remove('arregloBusquedaVideo', function() {
     console.log('Se eliminó el arreglo de búsqueda de videos.');
   });
 */
-
-/*  
-chrome.storage.local.set({ 'arregloBusquedaVideo': [JSON.stringify({nombreLlamada: "ejemplo",fechaLlamada:"2002-11-02",etiquetas:["etiqueta","asdfas"]})] }, function() {
+/*
+chrome.storage.local.remove('arregloBusquedaVideo', function() {
+  console.log('Se eliminó el arreglo de búsqueda de videos.');
+});
+*/
+/*
+chrome.storage.local.set({ 'arregloBusquedaVideo': [JSON.stringify({nombreLlamada: "yzw-vfbv-ffz",fechaLlamada:"2024-02-22 22:29",etiquetas:["etiqueta","asdfas"]}),
+                                                    JSON.stringify({nombreLlamada: "yzw-vfbv-ffz",fechaLlamada:"2024-02-22 22:29",etiquetas:["etiqueta","asdfas"]})] }, function() {
   console.log('se creo un array para almacenar las etiquetas sin id encontrado');
 });
 */
@@ -70,7 +69,7 @@ async function colasBusquedaVideo(){
          console.log("no hay videos pendientes en la cola de busqueda") 
       }else{
          let primerVideo = JSON.parse(result.arregloBusquedaVideo[0]);
-         console.log("voy a comenzar la busqueda de la siguiente llamada",primerVideo.nombreLlamada)
+         console.log("voy a comenzar la busqueda de la siguiente llamada",primerVideo.nombreLlamada,primerVideo.fechaLlamada)
   
         consultarApi(primerVideo);
 
@@ -96,40 +95,33 @@ function consultarApi(primerVideo){
         .then(function(data) {
             const arreglo = data.files;
             console.log("arreglo completo:", arreglo);
-
-            try{
-            arreglo.forEach(element => {
-               if(element.name.includes(primerVideo.fechaLlamada) &&  element.name.includes(primerVideo.nombreLlamada)){
+            
+            for (let i = 0; i < arreglo.length; i++) {
+               if(arreglo[i].name.includes(primerVideo.fechaLlamada) &&  arreglo[i].name.includes(primerVideo.nombreLlamada)){
                  console.log("se encontro la llamada");
-                 console.log("id: ",element.id);
-                 console.log("name: ",element.name);
+                 console.log("id: ",arreglo[i].id);
+                 console.log("name: ",arreglo[i].name);
                  
                  let infoLlamadaActualizado = {
                     "nombreLlamada":primerVideo.nombreLlamada,
                     "fechaLlamada":primerVideo.fechaLlamada,
                     "etiquetas":primerVideo.etiquetas,
-                    "id":element.id
-                 };               
+                    "id":arreglo[i].id
+                 }; 
                  
-                 var breakException = infoLlamadaActualizado;
+                 buscarSiguiente(infoLlamadaActualizado);
 
-                 throw breakException;
+                 break;
                }else{
                 
+
                }
-            });
-            
-            console.log("todavia no se encuentra el id....")
-            setTimeout(() => {
-                consultarApi(primerVideo);
-            }, 300000);
-
-            }catch(infoLlamadaActualizado){
-              console.log("length del arreglo, ",infoLlamadaActualizado.etiquetas.length);
-
-              guardarArregloVideo(infoLlamadaActualizado); 
-              guardarEnPermisos(infoLlamadaActualizado);   
             }
+            
+            console.log("todavia no se encuentra el id")
+            setTimeout(() => {
+              colasBusquedaVideo();
+           }, 300000);
         }).catch((error) => {
             console.error("Ha fallado la consulta con el sig error");
             console.error(error);
@@ -142,7 +134,28 @@ function consultarApi(primerVideo){
   }
   
   
+function buscarSiguiente(infoLlamadaActualizado){
+  chrome.storage.local.get('arregloBusquedaVideo', function(result) {
 
+    result.arregloBusquedaVideo.shift();
+
+    chrome.storage.local.set({ 'arregloBusquedaVideo': result.arregloBusquedaVideo}, function() {
+      console.log('Array actualizado');
+      console.log(result.arregloBusquedaVideo);
+
+      guardarArregloVideo(infoLlamadaActualizado); 
+      guardarEnPermisos(infoLlamadaActualizado);  
+
+      if(result.arregloBusquedaVideo.length === 0){
+        console.log("no hay mas videos para buscar en la cola") 
+      }else{
+        colasBusquedaVideo();
+      }
+    });
+
+    
+  });
+}
 
 /*
 //funcion para eliminar elementos del localstorage

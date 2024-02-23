@@ -3,10 +3,22 @@ importScripts('backgroundBusqueda.js');
 importScripts('backgroundPermisos.js');
 importScripts('backgroundGuardar.js');
 
-colasBusquedaVideo();
-colasWebService();
-colasPermisos();
-colasGuardarVideo();
+let tokenGuardar = "";
+
+chrome.identity.getAuthToken({ interactive: true ,scopes: ['https://www.googleapis.com/auth/drive']}, function (token) {
+   tokenGuardar = token;
+   console.log("se creo token de api")
+});
+
+setTimeout(() => {
+  colasBusquedaVideo();
+  colasWebService();
+  colasPermisos();
+  colasGuardarVideo();
+}, 10000);
+
+
+
 
 //datos de la llamada
 let nombreLlamada = "";
@@ -44,14 +56,30 @@ setTimeout(() => {
 }, 5000);
 */
 
-chrome.storage.local.get('arregloEtiquetas', function(result) {
-  console.log("arreglo etiquetas",result.arregloEtiquetas);
-  if (!result.arregloEtiquetas) {
-    chrome.storage.local.set({ 'arregloEtiquetas': [] }, function() {
-      console.log('se creo un array para almacenar las etiquetas');
+chrome.storage.local.get('llamadaActiva', function(result) {
+  console.log("llamadaActiva",result.llamadaActiva);
+  if (!result.llamadaActiva) {
+    chrome.storage.local.set({ 'llamadaActiva': {nombreLlamada: "",fechaLlamada:"",etiquetas:[]} }, function() {
+      console.log('Se creo un arreglo que almacenara los datos de la llamada en curso mientras se encuentre activa');
     });
   }else{
-    console.log("existia un array antes")
+    
+    if(result.llamadaActiva.nombreLlamada === ""){
+
+    }else{
+      console.log("se encontraron datos de una llamada anterior, se guardara el video");
+
+      setTimeout(() => {
+        guardarEnBusqueda(result.llamadaActiva.nombreLlamada,result.llamadaActiva.fechaLlamada,result.llamadaActiva.etiquetas);
+      }, 15000);
+      
+      
+
+      chrome.storage.local.set({ 'llamadaActiva': {nombreLlamada: "",fechaLlamada:"",etiquetas:[]} }, function() {
+        console.log("se limpiaron los datos de la llamada anterior")
+      });
+    }
+   
   }
 });
 
@@ -65,14 +93,24 @@ chrome.identity.getAuthToken({ interactive: true ,scopes: ['https://www.googleap
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.action === 'grabando') {
 
-      /*
+
       chrome.storage.local.set({ 'arregloEtiquetas': [] }, function() {
         console.log('se limpio el array de etiquetas');
       });
-      */
 
-      nombreLlamada = message.nombreLlamada;
-      fechaLlamada = message.fechaLlamada;
+      chrome.storage.local.get('llamadaActiva', function(result) {
+
+        result.llamadaActiva.nombreLlamada = message.nombreLlamada;
+        result.llamadaActiva.fechaLlamada = message.fechaLlamada;
+        result.llamadaActiva.etiquetas = [];
+
+        chrome.storage.local.set({ 'llamadaActiva': result.llamadaActiva }, function() {
+          console.log('datos de la llamada actual actualizados');
+          
+        });
+        
+      });
+
       console.log(popupWindow)
 
       if (popupWindow) {
@@ -88,23 +126,21 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     detenerContador();
 
     //obtiene el arreglo de etiquetas
-    chrome.storage.local.get('arregloEtiquetas', function(result) {
+    chrome.storage.local.get('llamadaActiva', function(result) {
 
       console.log("imprimiendo en grabacion finalizada: ",result)
 
       //envia el arreglo a la consulta esperando el id para ser enviado a colas
       
-      guardarEnBusqueda(nombreLlamada,fechaLlamada,result.arregloEtiquetas);
-
+      guardarEnBusqueda(result.llamadaActiva.nombreLlamada,result.llamadaActiva.fechaLlamada,result.llamadaActiva.etiquetas);
       /*
       intervaloConsultas = setInterval(function() {
         consultarApi(result.arregloEtiquetas);
       }, 300000);
       */
-
        //limpia el arreglo de etiquetas en caso de que se realice otra grabacion
-       chrome.storage.local.set({ 'arregloEtiquetas': [] }, function() {
-        console.log("array de etiquetas limpiado y listo para mandar a colas")
+       chrome.storage.local.set({ 'llamadaActiva': {nombreLlamada: "",fechaLlamada:"",etiquetas:[]} }, function() {
+        console.log('Se limpio la informacion de la llamada activa');
        });
     });
   }

@@ -1,4 +1,10 @@
 //este service worker se encargara de guardar el video en la ontologia
+/*
+chrome.storage.local.remove('arregloGuardar', function() {
+    console.log('Se eliminó el arreglo de búsqueda de videos.');
+  });
+  */
+
 chrome.storage.local.get('arregloGuardar', function(result) {
     console.log("arreglo Guardar: ",result.arregloGuardar);
     if (!result.arregloGuardar) {
@@ -77,9 +83,8 @@ function guardarVideo(videoGuardar){
               console.log( "video sin etiquetas guardado")
            }else{
              guardarEnCola(videoGuardar.id,videoGuardar.etiquetas);
-           }
-           
-           guardarSiguiente();
+             guardarSiguiente();
+           }           
 
        }).catch((error) => {
         console.error("Ha fallado la consulta de guardar video con el sig error");
@@ -87,7 +92,7 @@ function guardarVideo(videoGuardar){
         console.error("Se reintentara el guardado dentro de 10 segundos")
 
         setTimeout(() => {
-           colasGuardarVideo(infoLlamadaActualizado);
+           colasGuardarVideo();
         }, 10000);
        });
     }
@@ -97,11 +102,11 @@ function guardarVideo(videoGuardar){
   function guardarSiguiente(){
     chrome.storage.local.get('arregloGuardar', function(result) {
 
-        result.arregloBusquedaVideo.shift();
+        result.arregloGuardar.shift();
   
         chrome.storage.local.set({ 'arregloGuardar': result.arregloGuardar}, function() {
           console.log('Array de guardado de video actualizado');
-          console.log(arregloGuardar);
+          console.log(result.arregloGuardar);
     
           //comienza el funcionamiento de las colas tras actualizar
           if(result.arregloGuardar.length === 0){

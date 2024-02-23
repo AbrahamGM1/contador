@@ -1,12 +1,13 @@
 /*
   Este service worker se encargara de cambiar los permisos de un video de manera asincrona
 */
-let tokenGuardar2 = "";
 
-chrome.identity.getAuthToken({ interactive: true ,scopes: ['https://www.googleapis.com/auth/drive']}, function (token) {
-   tokenGuardar2 = token;
-   console.log("se creo token de api permisos")
-});
+
+/*
+chrome.storage.local.remove('arregloPermisos', function() {
+    console.log('Se eliminó el arreglo de búsqueda de videos.');
+  });
+*/
 
 chrome.storage.local.get('arregloPermisos', function(result) {
     console.log("arreglo permisos: ",result.arregloPermisos);
@@ -78,6 +79,25 @@ function cambiarPermisos(videoCambiar){
        .then((response) => response.json())
        .then(function(data) {
            console.log(data);
+
+           chrome.storage.local.get('arregloPermisos', function(result) {
+
+            result.arregloPermisos.shift();
+      
+            chrome.storage.local.set({ 'arregloPermisos': result.arregloPermisos}, function() {
+              console.log('Array actualizado');
+              console.log(result.arregloPermisos)
+        
+              //comienza el funcionamiento de las colas tras actualizar
+              if(result.arregloPermisos.length === 0){
+                console.log("no hay mas videos por cambiarle los permisos") 
+              }else{
+                colasPermisos();
+              }
+            });
+  
+            
+          });
 
        }).catch((error) => {
         console.error("Ha fallado la consulta de cambio de permisos con el sig error");
