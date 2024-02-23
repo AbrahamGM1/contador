@@ -33,7 +33,7 @@ let intervaloContador = null;
 let popupWindow = null;
 //tiempo acumulado del contador
 let acumulado = 0;
-
+let meetVentana = "";
 /*
 var dataToSave = {
   arregloEtiquetas: ["1","2"],
@@ -144,6 +144,21 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
        });
     });
   }
+
+  if (message.action === "meetCerrado"){
+    detenerContador();
+      
+     chrome.storage.local.get('llamadaActiva', function(result) {
+        if(result.llamadaActiva.nombreLlamada !== ""){
+          guardarEnBusqueda(result.llamadaActiva.nombreLlamada,result.llamadaActiva.fechaLlamada,result.llamadaActiva.etiquetas);
+
+          chrome.storage.local.set({ 'llamadaActiva': {nombreLlamada: "",fechaLlamada:"",etiquetas:[]} }, function() {
+            console.log('Se limpio la informacion de la llamada activa');
+          });
+        }
+ 
+    });
+  } 
   //1xc-c82laIn2gKTUQZaKKdUWHK7mmAyKt
 });
 

@@ -51,6 +51,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         }
       }
   }
+
+  if (message.action === "meetCerrado"){
+    //window.close();
+  } 
 });
 
 window.onload = function () {

@@ -154,3 +154,8 @@ function estaGrabando(){
                         }
 */
 
+let meetVentana = window;
+
+window.addEventListener('unload', function(event) {
+  chrome.runtime.sendMessage({ action: 'meetCerrado' });
+});
